@@ -1,0 +1,53 @@
+{
+	"groups": [
+		{
+			"name": "General",
+			"scenes": [
+				{
+					"name": "Warm White",
+					"colortemp": 2700
+				},
+				{
+					"name": "Red",
+					"rgb": {
+						"r": 255,
+						"g": 0,
+						"b": 0
+					}
+				},
+				{
+					"name": "Green",
+					"rgb": {
+						"r": 0,
+						"g": 255,
+						"b": 0
+					}
+				},
+				{
+					"name": "Blue",
+					"rgb": {
+						"r": 0,
+						"g": 0,
+						"b": 255
+					}
+				}
+			]
+		},
+		{
+			"name": "Alien: Fate of the Nostromo",
+			"scenes": [
+				{
+					"name": "Emergency Destruction System"
+				}
+			]
+		},
+		{
+			"name": "Betrayal at House on the Hill",
+			"scenes": [
+				{
+					"name": "Lightning"
+				}
+			]
+		},
+	]
+}
