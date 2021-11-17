@@ -1,4 +1,6 @@
 from PyQt5.QtCore import *
+from PyQt5.QtMultimedia import *
+from PyQt5.QtMultimediaWidgets import *
 from PyQt5.QtWidgets import *
 
 import asyncio
@@ -10,6 +12,24 @@ from pywizlight import wizlight, PilotBuilder
 
 light0 = wizlight("192.168.1.32") # Light 0
 
+class Video_Widget_Class(QVideoWidget):
+    def Video_Widget(self):
+        self.Video_Player = QtMultimediaWidgets.QVideoWidget(self.centralWidget)
+        self.Video_Player.setObjectName("videoPlayer")
+        self.Video_Player.show()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape and self.isFullScreen():
+            self.setFullScreen(False)
+            event.accept()
+        elif event.key() == Qt.Key_Enter and event.modifiers() & Qt.Key_Alt:
+            self.setFullScreen(not self.isFullScreen())
+            event.accept()
+
+    def mouseDoubleClickEvent(self, event):
+        self.setFullScreen(not self.isFullScreen())
+        event.accept()
+            
 class Worker(QObject):
     def __init__(self, loop: asyncio.AbstractEventLoop, parent=None):
         super(Worker, self).__init__(parent)
@@ -68,18 +88,10 @@ class Worker(QObject):
                     )
                     self.reset = False
                     await asyncio.sleep(sleep)
-                elif self.index == 5 and self.reset == True:
+                elif self.index == 6 and self.reset == True:
                     _colortemp = 2700
                     await asyncio.gather(
                         light0.turn_on(PilotBuilder(colortemp = _colortemp)),
-                        loop = loop
-                    )
-                    self.reset = False
-                    await asyncio.sleep(sleep)
-                elif self.index == 6 and self.reset == True:
-                    _rgb = (255, 0, 0)
-                    await asyncio.gather(
-                        light0.turn_on(PilotBuilder(rgb = _rgb)),
                         loop = loop
                     )
                     self.reset = False
@@ -92,7 +104,15 @@ class Worker(QObject):
                     )
                     self.reset = False
                     await asyncio.sleep(sleep)
-                elif self.index == 8:
+                elif self.index == 8 and self.reset == True:
+                    _rgb = (255, 0, 0)
+                    await asyncio.gather(
+                        light0.turn_on(PilotBuilder(rgb = _rgb)),
+                        loop = loop
+                    )
+                    self.reset = False
+                    await asyncio.sleep(sleep)
+                elif self.index == 9:
                     _rgb = (255, 128, 0)
                     await asyncio.gather(
                         light0.turn_on(PilotBuilder(rgb = _rgb)),
@@ -106,7 +126,7 @@ class Worker(QObject):
                         )
                     print("Off")
                     await asyncio.sleep(sleep)
-                elif self.index == 9 and self.reset == True:
+                elif self.index == 11 and self.reset == True:
                     _scene = 5 # Fireplace
                     await asyncio.gather(
                         light0.turn_on(PilotBuilder(scene = _scene)),
@@ -114,7 +134,7 @@ class Worker(QObject):
                     )
                     self.reset = False
                     await asyncio.sleep(sleep)
-                elif self.index == 10 and self.reset == True:
+                elif self.index == 12 and self.reset == True:
                     _rgb = (255, 0, 255)
                     await asyncio.gather(
                         light0.turn_on(PilotBuilder(rgb = _rgb)),
@@ -122,7 +142,7 @@ class Worker(QObject):
                     )
                     self.reset = False
                     await asyncio.sleep(sleep)
-                elif self.index == 11:
+                elif self.index == 13:
                     _colortemp = 6000
                     await asyncio.gather(
                         light0.turn_on(PilotBuilder(colortemp = _colortemp)),
@@ -183,27 +203,69 @@ class Window(QWidget):
 
         pushButtonNames0 = ["Off"]
         self.addPushButtons(layout, pushButtonNames0)
-        
-        groupBox1 = QGroupBox("General")
-        layout1 = QVBoxLayout()
-        pushButtonNames1 = ["Red", "Green", "Blue", "Warm White"]
-        self.addPushButtons(layout1, pushButtonNames1)
-        groupBox1.setLayout(layout1)
-        layout.addWidget(groupBox1)
 
-        groupBox2 = QGroupBox("Alien: Fate of the Nostromo")
-        layout2 = QVBoxLayout()
-        pushButtonNames2 = ["Default", "Alien", "Ash", "Emergency Destruction System", "Self-Destruct"]
-        self.addPushButtons(layout2, pushButtonNames2)
-        groupBox2.setLayout(layout2)
-        layout.addWidget(groupBox2)
+        # General
+        layout1 = QHBoxLayout()
         
-        groupBox3 = QGroupBox("Betrayal at House on the Hill")
-        layout3 = QVBoxLayout()
-        pushButtonNames3 = ["Default", "Haunt"]
-        self.addPushButtons(layout3, pushButtonNames3)        
-        groupBox3.setLayout(layout3)
-        layout.addWidget(groupBox3)
+        groupBox1Lighting = QGroupBox("General - Lighting")
+        layout1Lighting = QVBoxLayout()
+        pushButtonNames1Lighting = ["Red", "Green", "Blue", "Warm White"]
+        self.addPushButtons(layout1Lighting, pushButtonNames1Lighting)
+        groupBox1Lighting.setLayout(layout1Lighting)
+        layout1.addWidget(groupBox1Lighting)
+
+        #groupBox1Media = QGroupBox("General - Media")
+        #layout1Media = QVBoxLayout()
+        #pushButtonNames1Media = ["Video"]
+        #self.addPushButtons(layout1Media, pushButtonNames1Media)
+        #groupBox1Media.setLayout(layout1Media)
+        #layout1.addWidget(groupBox1Media)
+        
+        pushButton = QPushButton("Video")
+        pushButton.setProperty(self.name, "C:\Git\pywizlightcontroller\media\ASMR - Alien - Isolation - Nap Time near a Computer Console - Ambient Sounds - NO Aliens Aboard!.mp4")
+        pushButton.clicked.connect(self.openMediaPlayer)
+        layout1.addWidget(pushButton)
+        self.value += 1   
+        
+        layout.addLayout(layout1)
+
+        # Alien: Fate of the Nostromo
+        layout2 = QHBoxLayout()
+        
+        groupBox2Lighting = QGroupBox("Alien: Fate of the Nostromo")
+        layout2Lighting = QVBoxLayout()
+        pushButtonNames2Lighting = ["Default", "Alien", "Ash", "Emergency Destruction System", "Self-Destruct"]
+        self.addPushButtons(layout2Lighting, pushButtonNames2Lighting)
+        groupBox2Lighting.setLayout(layout2Lighting)
+        layout2.addWidget(groupBox2Lighting)
+
+        groupBox2Media = QGroupBox("Alien: Fate of the Nostromo - Media")
+        layout2Media = QVBoxLayout()
+        pushButtonNames2Media = ["Video"]
+        self.addPushButtons(layout2Media, pushButtonNames2Media)
+        groupBox2Media.setLayout(layout2Media)
+        layout2.addWidget(groupBox2Media)
+
+        layout.addLayout(layout2)
+
+        # Betrayal at House on the Hill
+        layout3 = QHBoxLayout()
+        
+        groupBox3Lighting = QGroupBox("Betrayal at House on the Hill")
+        layout3Lighting = QVBoxLayout()
+        pushButtonNames3Lighting = ["Default", "Haunt"]
+        self.addPushButtons(layout3Lighting, pushButtonNames3Lighting)        
+        groupBox3Lighting.setLayout(layout3Lighting)
+        layout3.addWidget(groupBox3Lighting)
+
+        groupBox3Media = QGroupBox("Betrayal at House on the Hill - Media")
+        layout3Media = QVBoxLayout()
+        pushButtonNames3Media = ["Video"]
+        self.addPushButtons(layout3Media, pushButtonNames3Media)
+        groupBox3Media.setLayout(layout3Media)
+        layout3.addWidget(groupBox3Media)
+
+        layout.addLayout(layout3)
         
         layout.addStretch(1)
         
@@ -222,6 +284,35 @@ class Window(QWidget):
     def sendtotask(self):
         self.set_index_signal.emit(self.sender().property(self.name))
 
+    def openMediaPlayer(self):
+        value = self.sender().property(self.name)
+
+        self.dialog = QDialog(self)
+        self.dialog.resize(1920, 1080)
+        
+        self.player = QMediaPlayer(self.dialog)
+        self.player.setMedia(QMediaContent(QUrl.fromLocalFile(value)))
+        self.videoWidget = Video_Widget_Class(self.dialog)
+        self.player.setVideoOutput(self.videoWidget)
+        self.videoWidget.show()
+        self.player.play()
+
+        self.fullScreenPushButton = QPushButton("FullScreen")
+        self.fullScreenPushButton.clicked.connect(self.fullScreenMediaPlayer)
+
+        dialogLayout = QVBoxLayout()
+        dialogLayout.addWidget(self.videoWidget)
+        dialogLayout.addWidget(self.fullScreenPushButton)
+        self.dialog.setLayout(dialogLayout)
+        self.dialog.show()
+        self.dialog.finished.connect(self.closeMediaPlayer)
+
+    def closeMediaPlayer(self):
+        self.player.stop()
+
+    def fullScreenMediaPlayer(self):
+        self.videoWidget.setFullScreen(True)
+        
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     loop = QEventLoop(app)
