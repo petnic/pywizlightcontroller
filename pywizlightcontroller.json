@@ -1,53 +1,102 @@
 {
-	"groups": [
+	"rows": [
 		{
-			"name": "General",
-			"scenes": [
+			"columns": [
 				{
-					"name": "Warm White",
-					"colortemp": 2700
+					"name": "General",
+					"items": [
+						{
+							"name": "Warm White",
+							"type": "light",
+							"colortemp": 2700
+						},
+						{
+							"name": "Red",
+							"type": "light",
+							"rgb": {
+								"r": 255,
+								"g": 0,
+								"b": 0
+							}
+						},
+						{
+							"name": "Green",
+							"type": "light",
+							"rgb": {
+								"r": 0,
+								"g": 255,
+								"b": 0
+							}
+						},
+						{
+							"name": "Blue",
+							"type": "light",
+							"rgb": {
+								"r": 0,
+								"g": 0,
+								"b": 255
+							}
+						}
+					]
 				},
 				{
-					"name": "Red",
-					"rgb": {
-						"r": 255,
-						"g": 0,
-						"b": 0
-					}
-				},
-				{
-					"name": "Green",
-					"rgb": {
-						"r": 0,
-						"g": 255,
-						"b": 0
-					}
-				},
-				{
-					"name": "Blue",
-					"rgb": {
-						"r": 0,
-						"g": 0,
-						"b": 255
-					}
+					"name": "General - Media",
+					"items": [
+						{
+							"name": "Video",
+							"type": "video",
+							"url": "C:\\Git\\pywizlightcontroller\\media\\ASMR - Alien - Isolation - Nap Time near a Computer Console - Ambient Sounds - NO Aliens Aboard!.mp4"
+						}
+					]
 				}
 			]
 		},
 		{
-			"name": "Alien: Fate of the Nostromo",
-			"scenes": [
+			"columns": [
 				{
-					"name": "Emergency Destruction System"
+					"name": "Alien: Fate of the Nostromo",
+					"items": [
+						{
+							"name": "Emergency Destruction System",
+							"type": "light",
+							"rgb": {
+								"r": 255,
+								"g": 128,
+								"b": 0
+							},
+							"pulse": {
+								"type": "default",
+								"on": 1,
+								"off": 1
+							}
+							
+						}
+					]
+				},
+				{
+					"name": "Alien: Fate or the Nostromo - Media"
 				}
 			]
 		},
 		{
-			"name": "Betrayal at House on the Hill",
-			"scenes": [
+			"columns": [
 				{
-					"name": "Lightning"
+					"name": "Betrayal at House on the Hill",
+					"items": [
+						{
+							"name": "Lightning",
+							"type": "light",
+							"colortemp": 6000,
+							"pulse": {
+								"type": "random"
+							}
+						}
+					]
+				},
+				{
+					"name": "Betrayal at House on the Hill - Media"
 				}
 			]
-		},
+		}
 	]
 }

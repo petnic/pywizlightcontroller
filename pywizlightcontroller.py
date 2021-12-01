@@ -5,12 +5,16 @@ from PyQt5.QtWidgets import *
 
 import asyncio
 from asyncqt import *
+import json
 import random
 import sys
 
 from pywizlight import wizlight, PilotBuilder
 
 light0 = wizlight("192.168.1.32") # Light 0
+
+media = "media"
+lighting = "lighting"
 
 class Video_Widget_Class(QVideoWidget):
     def Video_Widget(self):
@@ -196,80 +200,135 @@ class Window(QWidget):
             self.addPushButton(layout, pushButtonName)
         
     def initUi(self):
-        self.name = "index"
-        self.value = 0
+## This should be replaced by the url property in the media object of an item
+##        self.name = "index"
+##        self.value = 0
+
+        # json start
+        f = open("pywizlightcontroller.json", "r")
+        x = f.read()
+        f.close()
+        y = json.loads(x)
+
+        verticalLayout = QVBoxLayout()
+        for i in y["rows"]:
+            # Create horizontal layout
+            horizontalLayout = QHBoxLayout()
+            for j in i["columns"]:
+                groupBox_name = j["name"]
+                # Create group box
+                groupBox = QGroupBox(groupBox_name)
+                groupBoxLayout = QVBoxLayout()
+                for k in j["items"]:
+                    pushButton_name = k["name"]
+                    # Create push button
+                    pushButton = QPushButton(pushButton_name)
+                    if "media" in k:
+## Move to dostuff for interpretation of media                        
+##                        l = k["media"]
+##                        media_url = l["url"]
+                        pushButton.setProperty(media, json.dumps(k["media"]))
+                    if "lighting" in k:
+                        pushButton.setProperty(lighting, json.dumps(k["lighting"]))
+## Move to dostuff for interpretation of lighting
+##                        for l in k["lighting"]:                           
+##                            if "colortemp" in l:
+##                                lighting_colortemp = l["colortemp"]
+##                            elif "rgb" in l:
+##                                m = l["rgb"]
+##                                lighting_rgb_r = m["r"]
+##                                lighting_rgb_g = m["g"]
+##                                lighting_rgb_b = m["b"]
+##                            elif "scene" in l:
+##                                m = l["scene"]
+##                                lighting_scene_id = m["id"]
+##                            lighting_id = l["id"]
+##                            if "pulse" in l:
+##                                m = l["pulse"]
+##                                lighting_pulse_type = m["type"]
+##                                if lighting_pulse_type is "default":
+##                                    lighting_pulse_on = m["on"]
+##                                    lighting_pulse_off = m["off"]
+                    pushButton.clicked.connect(self.sendtotask)
+                    groupBoxLayout.addWidget(pushButton)
+                # Add group box layout to group box
+                groupBox.setLayout(groupBoxLayout)
+                # Add group box to horizontal layout
+                horizontalLayout.addWidget(groupBox)
+            # Add horizontal layout to vertical layout
+            verticalLayout.addLayout(horizontalLayout)
+        # json end
+
+## The following code will be replaced by json        
+##        pushButtonNames0 = ["Off"]
+##        self.addPushButtons(verticalLayout, pushButtonNames0)
+##
+##        # General
+##        layout1 = QHBoxLayout()
+##        
+##        groupBox1Lighting = QGroupBox("General - Lighting")
+##        layout1Lighting = QVBoxLayout()
+##        pushButtonNames1Lighting = ["Red", "Green", "Blue", "Warm White"]
+##        self.addPushButtons(layout1Lighting, pushButtonNames1Lighting)
+##        groupBox1Lighting.setLayout(layout1Lighting)
+##        layout1.addWidget(groupBox1Lighting)
+##
+##        #groupBox1Media = QGroupBox("General - Media")
+##        #layout1Media = QVBoxLayout()
+##        #pushButtonNames1Media = ["Video"]
+##        #self.addPushButtons(layout1Media, pushButtonNames1Media)
+##        #groupBox1Media.setLayout(layout1Media)
+##        #layout1.addWidget(groupBox1Media)
+##        
+##        pushButton = QPushButton("Video")
+##        pushButton.setProperty(self.name, "C:\Git\pywizlightcontroller\media\ASMR - Alien - Isolation - Nap Time near a Computer Console - Ambient Sounds - NO Aliens Aboard!.mp4")
+##        pushButton.clicked.connect(self.openMediaPlayer)
+##        layout1.addWidget(pushButton)
+##        self.value += 1   
+##        
+##        verticalLayout.addLayout(layout1)
+##
+##        # Alien: Fate of the Nostromo
+##        layout2 = QHBoxLayout()
+##        
+##        groupBox2Lighting = QGroupBox("Alien: Fate of the Nostromo")
+##        layout2Lighting = QVBoxLayout()
+##        pushButtonNames2Lighting = ["Default", "Alien", "Ash", "Emergency Destruction System", "Self-Destruct"]
+##        self.addPushButtons(layout2Lighting, pushButtonNames2Lighting)
+##        groupBox2Lighting.setLayout(layout2Lighting)
+##        layout2.addWidget(groupBox2Lighting)
+##
+##        groupBox2Media = QGroupBox("Alien: Fate of the Nostromo - Media")
+##        layout2Media = QVBoxLayout()
+##        pushButtonNames2Media = ["Video"]
+##        self.addPushButtons(layout2Media, pushButtonNames2Media)
+##        groupBox2Media.setLayout(layout2Media)
+##        layout2.addWidget(groupBox2Media)
+##
+##        verticalLayout.addLayout(layout2)
+##
+##        # Betrayal at House on the Hill
+##        layout3 = QHBoxLayout()
+##        
+##        groupBox3Lighting = QGroupBox("Betrayal at House on the Hill")
+##        layout3Lighting = QVBoxLayout()
+##        pushButtonNames3Lighting = ["Default", "Haunt"]
+##        self.addPushButtons(layout3Lighting, pushButtonNames3Lighting)        
+##        groupBox3Lighting.setLayout(layout3Lighting)
+##        layout3.addWidget(groupBox3Lighting)
+##
+##        groupBox3Media = QGroupBox("Betrayal at House on the Hill - Media")
+##        layout3Media = QVBoxLayout()
+##        pushButtonNames3Media = ["Video"]
+##        self.addPushButtons(layout3Media, pushButtonNames3Media)
+##        groupBox3Media.setLayout(layout3Media)
+##        layout3.addWidget(groupBox3Media)
+##
+##        verticalLayout.addLayout(layout3)
         
-        layout = QVBoxLayout()
-
-        pushButtonNames0 = ["Off"]
-        self.addPushButtons(layout, pushButtonNames0)
-
-        # General
-        layout1 = QHBoxLayout()
+        verticalLayout.addStretch(1)
         
-        groupBox1Lighting = QGroupBox("General - Lighting")
-        layout1Lighting = QVBoxLayout()
-        pushButtonNames1Lighting = ["Red", "Green", "Blue", "Warm White"]
-        self.addPushButtons(layout1Lighting, pushButtonNames1Lighting)
-        groupBox1Lighting.setLayout(layout1Lighting)
-        layout1.addWidget(groupBox1Lighting)
-
-        #groupBox1Media = QGroupBox("General - Media")
-        #layout1Media = QVBoxLayout()
-        #pushButtonNames1Media = ["Video"]
-        #self.addPushButtons(layout1Media, pushButtonNames1Media)
-        #groupBox1Media.setLayout(layout1Media)
-        #layout1.addWidget(groupBox1Media)
-        
-        pushButton = QPushButton("Video")
-        pushButton.setProperty(self.name, "C:\Git\pywizlightcontroller\media\ASMR - Alien - Isolation - Nap Time near a Computer Console - Ambient Sounds - NO Aliens Aboard!.mp4")
-        pushButton.clicked.connect(self.openMediaPlayer)
-        layout1.addWidget(pushButton)
-        self.value += 1   
-        
-        layout.addLayout(layout1)
-
-        # Alien: Fate of the Nostromo
-        layout2 = QHBoxLayout()
-        
-        groupBox2Lighting = QGroupBox("Alien: Fate of the Nostromo")
-        layout2Lighting = QVBoxLayout()
-        pushButtonNames2Lighting = ["Default", "Alien", "Ash", "Emergency Destruction System", "Self-Destruct"]
-        self.addPushButtons(layout2Lighting, pushButtonNames2Lighting)
-        groupBox2Lighting.setLayout(layout2Lighting)
-        layout2.addWidget(groupBox2Lighting)
-
-        groupBox2Media = QGroupBox("Alien: Fate of the Nostromo - Media")
-        layout2Media = QVBoxLayout()
-        pushButtonNames2Media = ["Video"]
-        self.addPushButtons(layout2Media, pushButtonNames2Media)
-        groupBox2Media.setLayout(layout2Media)
-        layout2.addWidget(groupBox2Media)
-
-        layout.addLayout(layout2)
-
-        # Betrayal at House on the Hill
-        layout3 = QHBoxLayout()
-        
-        groupBox3Lighting = QGroupBox("Betrayal at House on the Hill")
-        layout3Lighting = QVBoxLayout()
-        pushButtonNames3Lighting = ["Default", "Haunt"]
-        self.addPushButtons(layout3Lighting, pushButtonNames3Lighting)        
-        groupBox3Lighting.setLayout(layout3Lighting)
-        layout3.addWidget(groupBox3Lighting)
-
-        groupBox3Media = QGroupBox("Betrayal at House on the Hill - Media")
-        layout3Media = QVBoxLayout()
-        pushButtonNames3Media = ["Video"]
-        self.addPushButtons(layout3Media, pushButtonNames3Media)
-        groupBox3Media.setLayout(layout3Media)
-        layout3.addWidget(groupBox3Media)
-
-        layout.addLayout(layout3)
-        
-        layout.addStretch(1)
-        
-        self.setLayout(layout)
+        self.setLayout(verticalLayout)
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.setWindowFlags(self.windowFlags() | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint)
         self.setWindowTitle("Window")
@@ -284,6 +343,7 @@ class Window(QWidget):
     def sendtotask(self):
         self.set_index_signal.emit(self.sender().property(self.name))
 
+## This should be moved to dostuff (remember: media and lighting should be able to run in parallel)
     def openMediaPlayer(self):
         value = self.sender().property(self.name)
 
