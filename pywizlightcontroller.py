@@ -48,6 +48,12 @@ class Worker(QObject):
         self.mediaPlayer = None
         self.videoWidget = None
         self.mediaPlayerOpen = False
+        self.playPausePushButton = None
+        self.fullScreenPushButton = None
+        self.volumeSlider = None
+        self.playbackSlider = None
+        self.playbackMousePress = False
+        self.mutePushButton = None
 
     @pyqtSlot(QPushButton)
     def set_index_slot(self, _pushButton):
@@ -57,6 +63,40 @@ class Worker(QObject):
         self.bDoStuff = True
         self.openMedia = True
 
+    def muteMediaPlayer(self):
+        if self.mediaPlayer != None:
+            if self.mediaPlayer.isMuted():
+                self.mutePushButton.setText("Mute")
+                self.mediaPlayer.setMuted(False)
+            else:
+                self.mutePushButton.setText("Unmute")
+                self.mediaPlayer.setMuted(True)                
+    def volumeChanged(self, volume):
+        self.mediaPlayer.setVolume(volume)
+        self.volumeSlider.setToolTip(str(volume))
+        
+    def playbackMousePressed(self):
+        self.playbackMousePress = True
+
+    def playbackMouseReleased(self):
+        self.playbackMousePress = False
+        self.mediaPlayer.setPosition(self.playbackSlider.value())
+        
+    def playbackMediaPlayer(self, position):
+        if self.playbackSlider != None:
+            if self.playbackMousePress == False:
+                self.playbackSlider.setRange(0, self.mediaPlayer.duration())
+                self.playbackSlider.setValue(position)
+            
+    def playPauseMediaPlayer(self):
+        if self.mediaPlayer != None:
+            if self.mediaPlayer.state() == 1:
+                self.playPausePushButton.setText("Play")
+                self.mediaPlayer.pause()
+            else:
+                self.playPausePushButton.setText("Pause")
+                self.mediaPlayer.play()
+            
     def fullScreenMediaPlayer(self):
         self.videoWidget.setFullScreen(True)
         
@@ -75,9 +115,10 @@ class Worker(QObject):
             self.mediaPlayer = QMediaPlayer(self.dialog)
         self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(value)))
         if mute == True:
-            self.mediaPlayer.setVolume(0)
+            self.mediaPlayer.setMuted(True)
         else:
-            self.mediaPlayer.setVolume(volume)
+            self.mediaPlayer.setMuted(False)
+        self.mediaPlayer.setVolume(volume)
         if self.videoWidget == None:
             self.videoWidget = Video_Widget_Class(self.mediaPlayerDialog)
         self.mediaPlayer.setVideoOutput(self.videoWidget)
@@ -87,16 +128,57 @@ class Worker(QObject):
         self.mediaPlayer.play()
 
         if self.mediaPlayerOpen == False:
-            self.fullScreenPushButton = QPushButton("FullScreen")
-            self.fullScreenPushButton.clicked.connect(self.fullScreenMediaPlayer)
+            if self.playbackSlider == None:
+                self.playbackSlider = QSlider(1)
+                self.playbackSlider.setRange(0, self.mediaPlayer.duration())
+                self.mediaPlayer.positionChanged.connect(self.playbackMediaPlayer)
+                self.playbackSlider.sliderPressed.connect(self.playbackMousePressed)
+                self.playbackSlider.sliderReleased.connect(self.playbackMouseReleased)
+                
+            if self.playPausePushButton == None:
+                self.playPausePushButton = QPushButton("Pause")
+                self.playPausePushButton.clicked.connect(self.playPauseMediaPlayer)
+
+            if self.mutePushButton == None:
+                if (mute):
+                    self.mutePushButton = QPushButton("Unmute")
+                else:
+                    self.mutePushButton = QPushButton("Mute")
+                self.mutePushButton.clicked.connect(self.muteMediaPlayer)
+                
+            if self.volumeSlider == None:
+                self.volumeSlider = QSlider(1)
+                self.volumeSlider.setTickInterval(10)
+                self.volumeSlider.setTickPosition(3)
+                self.volumeSlider.setRange(0, 100)
+                self.volumeSlider.setValue(volume)
+                self.volumeSlider.valueChanged.connect(self.volumeChanged)
+                
+            if self.fullScreenPushButton == None:
+                self.fullScreenPushButton = QPushButton("FullScreen")
+                self.fullScreenPushButton.clicked.connect(self.fullScreenMediaPlayer)
 
             mediaPlayerDialogLayout = QVBoxLayout()
             mediaPlayerDialogLayout.addWidget(self.videoWidget)
-            mediaPlayerDialogLayout.addWidget(self.fullScreenPushButton)
+            mediaPlayerDialogLayout.addWidget(self.playbackSlider)
+            mediaPlayerPushButtonLayout = QHBoxLayout()
+            mediaPlayerPushButtonLayout.addWidget(self.playPausePushButton)
+            mediaPlayerPushButtonLayout.addWidget(self.mutePushButton)
+            mediaPlayerPushButtonLayout.addWidget(self.volumeSlider)
+            mediaPlayerPushButtonLayout.addWidget(self.fullScreenPushButton)
+            mediaPlayerDialogLayout.addLayout(mediaPlayerPushButtonLayout)
             self.mediaPlayerDialog.setLayout(mediaPlayerDialogLayout)
             self.mediaPlayerDialog.show()
             self.mediaPlayerDialog.finished.connect(self.closeMediaPlayer)
 
+
+        if self.playbackSlider != None:
+            self.playbackSlider.setRange(0, self.mediaPlayer.duration())
+            
+        if self.volumeSlider != None:
+            self.volumeSlider.setValue(volume)
+            self.volumeSlider.setToolTip(str(volume))
+                
         self.mediaPlayerOpen = True
         
     async def do_stuff(self):
