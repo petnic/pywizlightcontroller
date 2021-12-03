@@ -6,35 +6,79 @@
 					"name": "General",
 					"items": [
 						{
-							"name": "Warm White",
-							"type": "light",
-							"colortemp": 2700
+							"name": "Off",
+							"lighting": {
+								"items": [
+									{
+										"turn": "off",
+										"id": "192.168.1.32",
+										"pulse": "off"									
+									}
+								]
+							}
 						},
 						{
 							"name": "Red",
-							"type": "light",
-							"rgb": {
-								"r": 255,
-								"g": 0,
-								"b": 0
+							"lighting": {
+								"items": [
+									{
+										"turn": "on",
+										"rgb": {
+											"r": 255,
+											"g": 0,
+											"b": 0
+										},
+										"id": "192.168.1.32",
+										"pulse": "off"										
+									}
+								]
 							}
 						},
 						{
 							"name": "Green",
-							"type": "light",
-							"rgb": {
-								"r": 0,
-								"g": 255,
-								"b": 0
+							"lighting": {
+								"items": [
+									{
+										"turn": "on",
+										"rgb": {
+											"r": 0,
+											"g": 255,
+											"b": 0
+										},
+										"id": "192.168.1.32",
+										"pulse": "off"										
+									}
+								]
 							}
 						},
 						{
 							"name": "Blue",
-							"type": "light",
-							"rgb": {
-								"r": 0,
-								"g": 0,
-								"b": 255
+							"lighting": {
+								"items": [
+									{
+										"turn": "on",
+										"rgb": {
+											"r": 0,
+											"g": 0,
+											"b": 255
+										},
+										"id": "192.168.1.32",
+										"pulse": "off"										
+									}
+								]
+							}
+						},
+						{
+							"name": "Warm White",
+							"lighting": {
+								"items": [
+									{
+										"turn": "on",
+										"colortemp": 2700,
+										"id": "192.168.1.32",
+										"pulse": "off"	
+									}
+								]
 							}
 						}
 					]
@@ -44,8 +88,10 @@
 					"items": [
 						{
 							"name": "Video",
-							"type": "video",
-							"url": "C:\\Git\\pywizlightcontroller\\media\\ASMR - Alien - Isolation - Nap Time near a Computer Console - Ambient Sounds - NO Aliens Aboard!.mp4"
+							"media": {
+								"type": "video",
+								"url": "C:\\Git\\pywizlightcontroller\\media\\ASMR - Alien - Isolation - Nap Time near a Computer Console - Ambient Sounds - NO Aliens Aboard!.mp4"
+							}
 						}
 					]
 				}
@@ -57,24 +103,100 @@
 					"name": "Alien: Fate of the Nostromo",
 					"items": [
 						{
-							"name": "Emergency Destruction System",
-							"type": "light",
-							"rgb": {
-								"r": 255,
-								"g": 128,
-								"b": 0
-							},
-							"pulse": {
-								"type": "default",
-								"on": 1,
-								"off": 1
+							"name": "Default",
+							"lighting": {
+								"items": [
+									{
+										"turn": "on",
+										"colortemp": 2700,
+										"id": "192.168.1.32",
+										"pulse": "off"	
+									}
+								]
 							}
-							
+						},
+						{
+							"name": "Alien",
+							"lighting": {
+								"items": [
+									{
+										"turn": "on",
+										"rgb": {
+											"r": 255,
+											"g": 0,
+											"b": 0
+										},
+										"id": "192.168.1.32",
+										"pulse": "off"										
+									}
+								]
+							}
+						},
+						{
+							"name": "Ash",
+							"lighting": {
+								"items": [
+									{
+										"turn": "on",
+										"rgb": {
+											"r": 255,
+											"g": 0,
+											"b": 0
+										},
+										"id": "192.168.1.32",
+										"pulse": "off"										
+									}
+								]
+							}
+						},
+						{
+							"name": "Emergency Destruction System",
+							"lighting": {
+								"items": [
+									{
+										"turn": "on",
+										"rgb": {
+											"r": 255,
+											"g": 128,
+											"b": 0
+										},
+										"id": "192.168.1.32",
+										"pulse": "on"
+									}
+								],
+								"pulse": {
+									"type": "default",
+									"on": 1,
+									"off": 1
+								}
+							}
+						},
+						{
+							"name": "Self-Destruct",
+							"lighting": {
+								"items": [
+									{
+										"turn": "on",
+										"scene": 5,
+										"id": "192.168.1.32",
+										"pulse": "off"	
+									}
+								]
+							}
 						}
 					]
 				},
 				{
-					"name": "Alien: Fate or the Nostromo - Media"
+					"name": "Alien: Fate or the Nostromo - Media",
+					"items": [
+						{
+							"name": "Video",
+							"media": {
+								"type": "video",
+								"url": "C:\\Git\\pywizlightcontroller\\media\\ASMR - Alien - Isolation - Nap Time near a Computer Console - Ambient Sounds - NO Aliens Aboard!.mp4"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -84,17 +206,47 @@
 					"name": "Betrayal at House on the Hill",
 					"items": [
 						{
-							"name": "Lightning",
-							"type": "light",
-							"colortemp": 6000,
-							"pulse": {
-								"type": "random"
+							"name": "Default",
+							"lighting": {
+								"items": [
+									{
+										"turn": "on",
+										"colortemp": 2700,
+										"id": "192.168.1.32",
+										"pulse": "off"	
+									}
+								]
+							}
+						},
+						{
+							"name": "Haunt",
+							"lighting": {
+								"items": [
+									{
+										"turn": "on",
+										"colortemp": 6000,
+										"id": "192.168.1.32",
+										"pulse": "on"
+									}
+								],
+								"pulse": {
+									"type": "random"
+								}
 							}
 						}
 					]
 				},
 				{
-					"name": "Betrayal at House on the Hill - Media"
+					"name": "Betrayal at House on the Hill - Media",
+					"items": [
+						{
+							"name": "Video",
+							"media": {
+								"type": "video",
+								"url": "C:\\Git\\pywizlightcontroller\\media\\ASMR - Alien - Isolation - Nap Time near a Computer Console - Ambient Sounds - NO Aliens Aboard!.mp4"
+							}
+						}
+					]
 				}
 			]
 		}
