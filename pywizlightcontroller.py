@@ -44,6 +44,10 @@ class Worker(QObject):
         self.reset = False
         self.bDoStuff = False
         self.openMedia = False
+        self.mediaPlayerDialog = None
+        self.mediaPlayer = None
+        self.videoWidget = None
+        self.mediaPlayerOpen = False
 
     @pyqtSlot(QPushButton)
     def set_index_slot(self, _pushButton):
@@ -53,32 +57,47 @@ class Worker(QObject):
         self.bDoStuff = True
         self.openMedia = True
 
-    def openMediaPlayer(self, value):
-        self.dialog = QDialog(self.dialog)
-        self.dialog.resize(1920, 1080)
-        
-        self.player = QMediaPlayer(self.dialog)
-        self.player.setMedia(QMediaContent(QUrl.fromLocalFile(value)))
-        self.videoWidget = Video_Widget_Class(self.dialog)
-        self.player.setVideoOutput(self.videoWidget)
-        self.videoWidget.show()
-        self.player.play()
-
-        self.fullScreenPushButton = QPushButton("FullScreen")
-        self.fullScreenPushButton.clicked.connect(self.fullScreenMediaPlayer)
-
-        dialogLayout = QVBoxLayout()
-        dialogLayout.addWidget(self.videoWidget)
-        dialogLayout.addWidget(self.fullScreenPushButton)
-        self.dialog.setLayout(dialogLayout)
-        self.dialog.show()
-        self.dialog.finished.connect(self.closeMediaPlayer)
-
-    def closeMediaPlayer(self):
-        self.player.stop()
-
     def fullScreenMediaPlayer(self):
         self.videoWidget.setFullScreen(True)
+        
+    def closeMediaPlayer(self): 
+        if self.mediaPlayer != None:
+            self.mediaPlayer.stop()
+        self.mediaPlayerOpen = False
+            
+    def openMediaPlayer(self, name, value, fullScreen, mute, volume):
+        if self.mediaPlayerDialog == None:
+            self.mediaPlayerDialog = QDialog(self.dialog)
+            self.mediaPlayerDialog.resize(1920, 1080)
+            self.mediaPlayerDialog.setWindowTitle(name)
+
+        if self.mediaPlayer == None:
+            self.mediaPlayer = QMediaPlayer(self.dialog)
+        self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(value)))
+        if mute == True:
+            self.mediaPlayer.setVolume(0)
+        else:
+            self.mediaPlayer.setVolume(volume)
+        if self.videoWidget == None:
+            self.videoWidget = Video_Widget_Class(self.mediaPlayerDialog)
+        self.mediaPlayer.setVideoOutput(self.videoWidget)
+##        if fullScreen is True:
+##            self.fullScreenMediaPlayer()
+        self.videoWidget.show()
+        self.mediaPlayer.play()
+
+        if self.mediaPlayerOpen == False:
+            self.fullScreenPushButton = QPushButton("FullScreen")
+            self.fullScreenPushButton.clicked.connect(self.fullScreenMediaPlayer)
+
+            mediaPlayerDialogLayout = QVBoxLayout()
+            mediaPlayerDialogLayout.addWidget(self.videoWidget)
+            mediaPlayerDialogLayout.addWidget(self.fullScreenPushButton)
+            self.mediaPlayerDialog.setLayout(mediaPlayerDialogLayout)
+            self.mediaPlayerDialog.show()
+            self.mediaPlayerDialog.finished.connect(self.closeMediaPlayer)
+
+        self.mediaPlayerOpen = True
         
     async def do_stuff(self):
         while True:
@@ -88,8 +107,18 @@ class Worker(QObject):
                     if self.openMedia == True:
                         if self.pushButton.property("media") != None:
                             i = json.loads(self.pushButton.property("media"))
+                            media_name = "Media"
                             media_url = i["url"]
-                            self.openMediaPlayer(media_url)
+                            media_fullScreen = False
+                            fullScreen = i["fullScreen"]
+                            if fullScreen == "on":
+                                media_fullScreen = True
+                            media_mute = False
+                            mute = i["mute"]
+                            if mute == "on":
+                                media_mute = True
+                            media_volume = i["volume"]
+                            self.openMediaPlayer(media_name, media_url, media_fullScreen, media_mute, media_volume)
                             self.openMedia = False
                     if self.pushButton.property("lighting") != None:
                         tasks_on = []
@@ -267,7 +296,7 @@ class Window(QWidget):
         self.setLayout(verticalLayout)
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.setWindowFlags(self.windowFlags() | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint)
-        self.setWindowTitle("Window")
+        self.setWindowTitle("pywizlightcontroller")
         self.resize(1920, 1080)
 
     def start_task(self):

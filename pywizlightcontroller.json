@@ -82,18 +82,6 @@
 							}
 						}
 					]
-				},
-				{
-					"name": "General - Media",
-					"items": [
-						{
-							"name": "Video",
-							"media": {
-								"type": "video",
-								"url": "C:\\Git\\pywizlightcontroller\\media\\ASMR - Alien - Isolation - Nap Time near a Computer Console - Ambient Sounds - NO Aliens Aboard!.mp4"
-							}
-						}
-					]
 				}
 			]
 		},
@@ -169,6 +157,13 @@
 									"on": 1,
 									"off": 1
 								}
+							},
+							"media": {
+								"type": "video",
+								"fullScreen": "on",
+								"mute": "off",
+								"volume": 100,
+								"url": "C:\\Git\\pywizlightcontroller\\media\\#ALIEN - Nostromo destruct sequence.mp4"
 							}
 						},
 						{
@@ -187,12 +182,15 @@
 					]
 				},
 				{
-					"name": "Alien: Fate or the Nostromo - Media",
+					"name": "Alien: Fate of the Nostromo - Media",
 					"items": [
 						{
-							"name": "Video",
+							"name": "\"Mother\"",
 							"media": {
 								"type": "video",
+								"fullScreen": "on",
+								"mute": "off",
+								"volume": 100,
 								"url": "C:\\Git\\pywizlightcontroller\\media\\ASMR - Alien - Isolation - Nap Time near a Computer Console - Ambient Sounds - NO Aliens Aboard!.mp4"
 							}
 						}
@@ -232,18 +230,6 @@
 								"pulse": {
 									"type": "random"
 								}
-							}
-						}
-					]
-				},
-				{
-					"name": "Betrayal at House on the Hill - Media",
-					"items": [
-						{
-							"name": "Video",
-							"media": {
-								"type": "video",
-								"url": "C:\\Git\\pywizlightcontroller\\media\\ASMR - Alien - Isolation - Nap Time near a Computer Console - Ambient Sounds - NO Aliens Aboard!.mp4"
 							}
 						}
 					]
