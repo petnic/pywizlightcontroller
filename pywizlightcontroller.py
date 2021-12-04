@@ -252,17 +252,19 @@ class Worker(QObject):
                                     j = i["pulse"]
                                     if j == "on":
                                         _pulse = 1
-                            lighting_id = i["id"]
-                            wizlight = wizlightDictionary[lighting_id]
-                            if _turn == 0:
-                                tasks_on.append(asyncio.create_task(wizlight.turn_off()))
-                            else:
-                                if _type == 1:
-                                    tasks_on.append(asyncio.create_task(wizlight.turn_on(PilotBuilder(colortemp = _colortemp))))
-                                elif _type == 2:
-                                    tasks_on.append(asyncio.create_task(wizlight.turn_on(PilotBuilder(rgb = _rgb))))
-                                elif _type == 3:
-                                    tasks_on.append(asyncio.create_task(wizlight.turn_on(PilotBuilder(scene = _scene))))
+                            lighting_ids = i["ids"]
+                            for j in lighting_ids:
+                                lighting_id = j
+                                wizlight = wizlightDictionary[lighting_id]
+                                if _turn == 0:
+                                    tasks_on.append(asyncio.create_task(wizlight.turn_off()))
+                                else:
+                                    if _type == 1:
+                                        tasks_on.append(asyncio.create_task(wizlight.turn_on(PilotBuilder(colortemp = _colortemp))))
+                                    elif _type == 2:
+                                        tasks_on.append(asyncio.create_task(wizlight.turn_on(PilotBuilder(rgb = _rgb))))
+                                    elif _type == 3:
+                                        tasks_on.append(asyncio.create_task(wizlight.turn_on(PilotBuilder(scene = _scene))))
                         await asyncio.gather(
                             *tasks_on
                         )
@@ -299,10 +301,12 @@ class Worker(QObject):
                                         j = i["pulse"]
                                         if j == "on":
                                             _pulse = 1
-                                lighting_id = i["id"]
-                                wizlight = wizlightDictionary[lighting_id]
-                                if _pulse == 1:
-                                    tasks_off.append(asyncio.create_task(wizlight.turn_off()))
+                                lighting_ids = i["ids"]
+                                for j in lighting_ids:
+                                    lighting_id = j
+                                    wizlight = wizlightDictionary[lighting_id]
+                                    if _pulse == 1:
+                                        tasks_off.append(asyncio.create_task(wizlight.turn_off()))
                             await asyncio.gather(
                                 *tasks_off
                             )
@@ -362,8 +366,10 @@ class Window(QWidget):
                             pushButton.setProperty(lighting, json.dumps(k["lighting"]))
                             items = k["lighting"]["items"]
                             for l in items:
-                                lighting_id = l["id"]
-                                wizlightDictionary[lighting_id] = wizlight(lighting_id)
+                                lighting_ids = l["ids"]
+                                for m in lighting_ids:
+                                    lighting_id = m
+                                    wizlightDictionary[lighting_id] = wizlight(lighting_id)
                         pushButton.clicked.connect(self.sendtotask)
                         groupBoxLayout.addWidget(pushButton)
                 # Add group box layout to group box
