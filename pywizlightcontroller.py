@@ -16,6 +16,55 @@ wizlightDictionary = {}
 media = "media"
 lighting = "lighting"
 
+class MediaPlayerController(QGroupBox):
+    def __init__(self, title, parent=None):
+        super(MediaPlayerController, self).__init__(parent)
+
+        self.vBoxLayout = QVBoxLayout()
+
+        self.titleLabel = QLabel(title, self)
+        self.vBoxLayout.addWidget(self.titleLabel)
+
+        self.progressBarSlider = QSlider(1, self) ## Qt::Horizontal
+        self.progressBarSlider.setRange(0, 1)
+        self.vBoxLayout.addWidget(self.progressBarSlider)
+
+        self.hBoxLayout = QHBoxLayout()
+
+        self.playPushButton = QPushButton("Play", self)
+        self.hBoxLayout.addWidget(self.playPushButton)
+
+        self.mutePushButton = QPushButton("Mute", self)
+        self.hBoxLayout.addWidget(self.mutePushButton)
+
+        self.volumeSlider = QSlider(1, self) ## Qt::Horizontal
+        self.volumeSlider.setTickInterval(10)
+        self.volumeSlider.setTickPosition(3) ## QSlider::TicksBothSides
+        self.volumeSlider.setRange(0, 100)
+        self.volumeSlider.setToolTip(str(0))
+        self.volumeSlider.setValue(0)
+        self.hBoxLayout.addWidget(self.volumeSlider)
+
+        self.vBoxLayout.addLayout(self.hBoxLayout)
+
+        self.setLayout(self.vBoxLayout)
+
+class AudioMediaPlayerController(MediaPlayerController):
+    def __init__(self, title, parent=None):
+        super(AudioMediaPlayerController, self).__init__(title, parent)
+
+        self.setTitle("Audio")
+
+class VideoMediaPlayerController(MediaPlayerController):
+    def __init__(self, title, parent=None):
+        super(VideoMediaPlayerController, self).__init__(title, parent)
+        
+        self.setTitle("Video")
+
+        self.fullscreenPushButton = QPushButton("Fullscreen", self)
+        self.hBoxLayout.addWidget(self.fullscreenPushButton)
+
+        
 class Video_Widget_Class(QVideoWidget):
     def Video_Widget(self):
         self.Video_Player = QtMultimediaWidgets.QVideoWidget(self.centralWidget)
@@ -35,7 +84,7 @@ class Video_Widget_Class(QVideoWidget):
         event.accept()
             
 class Worker(QObject):
-    def __init__(self, loop: asyncio.AbstractEventLoop, parent=None):
+    def __init__(self, loop: asyncio.AbstractEventLoop, _audioMediaPlayerController, _videoMediaPlayerController, parent=None):
         super(Worker, self).__init__(parent)
         self.dialog = None
         self.pushButton = None
@@ -48,12 +97,9 @@ class Worker(QObject):
         self.mediaPlayer = None
         self.videoWidget = None
         self.mediaPlayerOpen = False
-        self.playPausePushButton = None
-        self.fullScreenPushButton = None
-        self.volumeSlider = None
-        self.playbackSlider = None
         self.playbackMousePress = False
-        self.mutePushButton = None
+        self.audioMediaPlayerController = _audioMediaPlayerController
+        self.videoMediaPlayerController = _videoMediaPlayerController
 
     @pyqtSlot(QPushButton)
     def set_index_slot(self, _pushButton):
@@ -63,43 +109,44 @@ class Worker(QObject):
         self.bDoStuff = True
         self.openMedia = True
 
-    def muteMediaPlayer(self):
-        if self.mediaPlayer != None:
-            if self.mediaPlayer.isMuted():
-                self.mutePushButton.setText("Mute")
-                self.mediaPlayer.setMuted(False)
-            else:
-                self.mutePushButton.setText("Unmute")
-                self.mediaPlayer.setMuted(True)                
-    def volumeChanged(self, volume):
-        self.mediaPlayer.setVolume(volume)
-        self.volumeSlider.setToolTip(str(volume))
-        
-    def playbackMousePressed(self):
+    def progressBarSliderPressed(self):
         self.playbackMousePress = True
 
-    def playbackMouseReleased(self):
+    def progressBarSliderReleased(self):
         self.playbackMousePress = False
-        self.mediaPlayer.setPosition(self.playbackSlider.value())
-        
-    def playbackMediaPlayer(self, position):
-        if self.playbackSlider != None:
-            if self.playbackMousePress == False:
-                self.playbackSlider.setRange(0, self.mediaPlayer.duration())
-                self.playbackSlider.setValue(position)
-            
-    def playPauseMediaPlayer(self):
+        self.mediaPlayer.setPosition(self.videoMediaPlayerController.progressBarSlider.value())
+
+    def playPushButtonClicked(self):
         if self.mediaPlayer != None:
             if self.mediaPlayer.state() == 1:
-                self.playPausePushButton.setText("Play")
+                self.videoMediaPlayerController.playPushButton.setText("Play")
                 self.mediaPlayer.pause()
             else:
-                self.playPausePushButton.setText("Pause")
+                self.videoMediaPlayerController.playPushButton.setText("Pause")
                 self.mediaPlayer.play()
-            
-    def fullScreenMediaPlayer(self):
+
+    def mutePushButtonClicked(self):
+        if self.mediaPlayer != None:
+            if self.mediaPlayer.isMuted():
+                self.videoMediaPlayerController.mutePushButton.setText("Mute")
+                self.mediaPlayer.setMuted(False)
+            else:
+                self.videoMediaPlayerController.mutePushButton.setText("Unmute")
+                self.mediaPlayer.setMuted(True)
+
+    def volumeSliderValueChanged(self):
+        self.mediaPlayer.setVolume(volume)
+        self.videoMediaPlayerController.volumeSlider.setToolTip(str(volume))
+
+    def fullscreenPushButtonClicked(self):
         self.videoWidget.setFullScreen(True)
         
+    def playbackMediaPlayer(self, position):
+        if self.videoMediaPlayerController.progressBarSlider != None:
+            if self.playbackMousePress == False:
+                self.videoMediaPlayerController.progressBarSlider.setRange(0, self.mediaPlayer.duration())
+                self.videoMediaPlayerController.progressBarSlider.setValue(position)
+            
     def closeMediaPlayer(self): 
         if self.mediaPlayer != None:
             self.mediaPlayer.stop()
@@ -128,56 +175,48 @@ class Worker(QObject):
         self.mediaPlayer.play()
 
         if self.mediaPlayerOpen == False:
-            if self.playbackSlider == None:
-                self.playbackSlider = QSlider(1)
-                self.playbackSlider.setRange(0, self.mediaPlayer.duration())
+            if self.videoMediaPlayerController.titleLabel != None:
+                self.videoMediaPlayerController.titleLabel.setText(value)
+            
+            if self.videoMediaPlayerController.progressBarSlider != None:
+                self.videoMediaPlayerController.progressBarSlider.setRange(0, self.mediaPlayer.duration())
+                self.videoMediaPlayerController.progressBarSlider.sliderPressed.connect(self.progressBarSliderPressed)
+                self.videoMediaPlayerController.progressBarSlider.sliderReleased.connect(self.progressBarSliderReleased)
                 self.mediaPlayer.positionChanged.connect(self.playbackMediaPlayer)
-                self.playbackSlider.sliderPressed.connect(self.playbackMousePressed)
-                self.playbackSlider.sliderReleased.connect(self.playbackMouseReleased)
-                
-            if self.playPausePushButton == None:
-                self.playPausePushButton = QPushButton("Pause")
-                self.playPausePushButton.clicked.connect(self.playPauseMediaPlayer)
 
-            if self.mutePushButton == None:
+            if self.videoMediaPlayerController.playPushButton != None:
+                self.videoMediaPlayerController.playPushButton.setText("Pause")
+                self.videoMediaPlayerController.playPushButton.clicked.connect(self.playPushButtonClicked)
+
+            if self.videoMediaPlayerController.mutePushButton != None:
                 if (mute):
-                    self.mutePushButton = QPushButton("Unmute")
+                    self.videoMediaPlayerController.mutePushButton.setText("Unmute")
                 else:
-                    self.mutePushButton = QPushButton("Mute")
-                self.mutePushButton.clicked.connect(self.muteMediaPlayer)
+                    self.videoMediaPlayerController.mutePushButton.setText("Mute")
+                self.videoMediaPlayerController.mutePushButton.clicked.connect(self.mutePushButtonClicked)
+
+            if self.videoMediaPlayerController.volumeSlider != None:
+                self.videoMediaPlayerController.volumeSlider.setValue(volume)
+                self.videoMediaPlayerController.volumeSlider.valueChanged.connect(self.volumeSliderValueChanged)
                 
-            if self.volumeSlider == None:
-                self.volumeSlider = QSlider(1)
-                self.volumeSlider.setTickInterval(10)
-                self.volumeSlider.setTickPosition(3)
-                self.volumeSlider.setRange(0, 100)
-                self.volumeSlider.setValue(volume)
-                self.volumeSlider.valueChanged.connect(self.volumeChanged)
-                
-            if self.fullScreenPushButton == None:
-                self.fullScreenPushButton = QPushButton("FullScreen")
-                self.fullScreenPushButton.clicked.connect(self.fullScreenMediaPlayer)
+            if self.videoMediaPlayerController.fullscreenPushButton != None:
+                self.videoMediaPlayerController.fullscreenPushButton.clicked.connect(self.fullscreenPushButtonClicked)
 
             mediaPlayerDialogLayout = QVBoxLayout()
             mediaPlayerDialogLayout.addWidget(self.videoWidget)
-            mediaPlayerDialogLayout.addWidget(self.playbackSlider)
-            mediaPlayerPushButtonLayout = QHBoxLayout()
-            mediaPlayerPushButtonLayout.addWidget(self.playPausePushButton)
-            mediaPlayerPushButtonLayout.addWidget(self.mutePushButton)
-            mediaPlayerPushButtonLayout.addWidget(self.volumeSlider)
-            mediaPlayerPushButtonLayout.addWidget(self.fullScreenPushButton)
-            mediaPlayerDialogLayout.addLayout(mediaPlayerPushButtonLayout)
             self.mediaPlayerDialog.setLayout(mediaPlayerDialogLayout)
             self.mediaPlayerDialog.show()
             self.mediaPlayerDialog.finished.connect(self.closeMediaPlayer)
 
-
-        if self.playbackSlider != None:
-            self.playbackSlider.setRange(0, self.mediaPlayer.duration())
+        if self.videoMediaPlayerController.titleLabel != None:
+                self.videoMediaPlayerController.titleLabel.setText(value)
+                
+        if self.videoMediaPlayerController.progressBarSlider != None:
+            self.videoMediaPlayerController.progressBarSlider.setRange(0, self.mediaPlayer.duration())
             
-        if self.volumeSlider != None:
-            self.volumeSlider.setValue(volume)
-            self.volumeSlider.setToolTip(str(volume))
+        if self.videoMediaPlayerController.volumeSlider != None:
+            self.videoMediaPlayerController.volumeSlider.setValue(volume)
+            self.videoMediaPlayerController.volumeSlider.setToolTip(str(volume))
                 
         self.mediaPlayerOpen = True
         
@@ -353,13 +392,13 @@ class Window(QWidget):
             for j in i["columns"]:
                 groupBox_name = j["name"]
                 # Create group box
-                groupBox = QGroupBox(groupBox_name)
+                groupBox = QGroupBox(groupBox_name, self)
                 groupBoxLayout = QVBoxLayout()
                 if "items" in j:
                     for k in j["items"]:
                         pushButton_name = k["name"]
                         # Create push button
-                        pushButton = QPushButton(pushButton_name)
+                        pushButton = QPushButton(pushButton_name, self)
                         if "media" in k:
                             pushButton.setProperty(media, json.dumps(k["media"]))
                         if "lighting" in k:
@@ -380,6 +419,12 @@ class Window(QWidget):
             verticalLayout.addLayout(horizontalLayout)
         
         verticalLayout.addStretch(1)
+
+        self.audioMediaPlayerController = AudioMediaPlayerController("", self)
+        verticalLayout.addWidget(self.audioMediaPlayerController)
+
+        self.videoMediaPlayerController = VideoMediaPlayerController("", self)
+        verticalLayout.addWidget(self.videoMediaPlayerController)
         
         self.setLayout(verticalLayout)
         self.setAttribute(Qt.WA_DeleteOnClose)
@@ -389,7 +434,7 @@ class Window(QWidget):
 
     def start_task(self):
         loop = asyncio.get_event_loop()
-        self.worker = Worker(loop)
+        self.worker = Worker(loop, self.audioMediaPlayerController, self.videoMediaPlayerController)
         self.set_index_signal.connect(self.worker.set_index_slot)
         self.worker.work()
 
